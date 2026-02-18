@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proximity — Landlord Onboarding</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #1a0a09;
+    --blue: #b82e24;
+    --accent: #E33A2F;
+    --light: #fdf5f4;
+    --border: #e8d5d4;
+    --text: #1a0e0e;
+    --muted: #8a6b6a;
+    --white: #ffffff;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--light);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .header {
+    background: var(--navy);
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .header-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--white);
+    letter-spacing: 0.02em;
+  }
+  .header-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.2); }
+  .header-subtitle {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .progress-bar {
+    background: var(--navy);
+    padding: 0 40px 24px;
+    display: flex;
+    gap: 6px;
+  }
+  .progress-step {
+    height: 3px;
+    flex: 1;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    transition: background 0.4s ease;
+  }
+  .progress-step.active { background: var(--accent); }
+  .progress-step.done { background: rgba(255,255,255,0.4); }
+
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  .section-intro { margin-bottom: 36px; }
+  .section-number {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--navy);
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+  .section-desc {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .step { display: none; }
+  .step.active { display: block; }
+
+  .field { margin-bottom: 20px; }
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 7px;
+    letter-spacing: 0.01em;
+  }
+  .field .hint {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-left: 4px;
+  }
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    background: var(--white);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    -webkit-appearance: none;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(227,58,47,0.12);
+  }
+  .field textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238a6b6a' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+    cursor: pointer;
+  }
+  .field input::placeholder,
+  .field textarea::placeholder { color: #aabccd; }
+
+  .field-row { display: grid; gap: 14px; margin-bottom: 20px; }
+  .field-row.two { grid-template-columns: 1fr 1fr; }
+  .field-row .field { margin-bottom: 0; }
+
+  /* Check pill used for lease terms and amenities */
+  .check-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+  }
+  .check-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .check-pill {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 13px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--white);
+    font-size: 13.5px;
+    color: var(--text);
+    font-weight: 400;
+    user-select: none;
+  }
+  .check-pill:has(input:checked) {
+    border-color: var(--accent);
+    background: rgba(227,58,47,0.04);
+    color: var(--navy);
+    font-weight: 500;
+  }
+  .check-pill input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  /* Property card */
+  .property-card {
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    background: var(--white);
+  }
+  .property-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .property-card-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .remove-card {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 20px;
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 0.2s, background 0.2s;
+  }
+  .remove-card:hover { color: #c0392b; background: #fdf0ee; }
+
+  .subsection-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #c49a98;
+    margin-bottom: 10px;
+    margin-top: 4px;
+  }
+
+  /* Unit block inside property */
+  .unit-block {
+    border: 1.5px solid #f0dada;
+    border-radius: 9px;
+    padding: 18px;
+    margin-bottom: 10px;
+    background: #fdf8f8;
+  }
+  .unit-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .unit-block-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #c49a98;
+  }
+  .remove-unit {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #c49a98;
+    font-size: 17px;
+    line-height: 1;
+    padding: 2px 5px;
+    border-radius: 4px;
+    transition: color 0.2s, background 0.2s;
+  }
+  .remove-unit:hover { color: #c0392b; background: #fdf0ee; }
+
+  .inline-grid-two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .inline-grid-three {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .inline-field { }
+  .inline-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 7px;
+  }
+  .inline-field input,
+  .inline-field select {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--white);
+    outline: none;
+    -webkit-appearance: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .inline-field input:focus,
+  .inline-field select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(227,58,47,0.12);
+  }
+  .inline-field input::placeholder { color: #aabccd; }
+  .inline-field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238a6b6a' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 13px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+
+  .add-unit-btn {
+    width: 100%;
+    padding: 10px;
+    border: 1.5px dashed #e0b8b6;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--accent);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 2px;
+    margin-bottom: 6px;
+  }
+  .add-unit-btn:hover { border-color: var(--accent); background: rgba(227,58,47,0.03); }
+
+  .add-property-btn {
+    width: 100%;
+    padding: 14px;
+    border: 1.5px dashed var(--border);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--accent);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .add-property-btn:hover { border-color: var(--accent); background: rgba(227,58,47,0.04); }
+
+  /* Photo options */
+  .photo-option {
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 15px 18px;
+    margin-bottom: 9px;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    transition: border-color 0.2s, background 0.2s;
+    background: var(--white);
+  }
+  .photo-option:has(input:checked) {
+    border-color: var(--accent);
+    background: rgba(227,58,47,0.03);
+  }
+  .photo-option input[type="radio"] {
+    width: 17px;
+    height: 17px;
+    margin-top: 2px;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+  }
+  .photo-option-text strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 2px;
+  }
+  .photo-option-text span { font-size: 13px; color: var(--muted); font-weight: 300; }
+
+  .section-divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+
+  .note-box {
+    background: #fdf0ef;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin-bottom: 28px;
+  }
+  .note-box p { font-size: 13px; color: #8a1f18; line-height: 1.6; }
+
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 40px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+  }
+  .btn-back {
+    background: none;
+    border: 1.5px solid var(--border);
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-back:hover { border-color: var(--muted); color: var(--text); }
+  .btn-next {
+    background: var(--navy);
+    border: none;
+    padding: 13px 32px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--white);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-next:hover { background: var(--blue); }
+  .btn-next:active { transform: scale(0.98); }
+  .btn-submit {
+    background: var(--accent);
+    border: none;
+    padding: 13px 36px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--white);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-submit:hover { background: #1d6ab8; }
+  .nav-spacer { width: 100px; }
+
+  .confirmation { text-align: center; padding: 60px 20px; }
+  .confirmation-icon {
+    width: 64px;
+    height: 64px;
+    background: #fdecea;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    font-size: 28px;
+  }
+  .confirmation h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--navy);
+    margin-bottom: 12px;
+  }
+  .confirmation p {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 440px;
+    margin: 0 auto;
+    font-weight: 300;
+  }
+
+  @media (max-width: 520px) {
+    .header { padding: 20px; }
+    .progress-bar { padding: 0 20px 20px; }
+    .container { padding: 32px 16px 60px; }
+    .field-row.two, .inline-grid-two, .inline-grid-three { grid-template-columns: 1fr; }
+    .check-grid, .check-grid.three { grid-template-columns: 1fr; }
+    .section-title { font-size: 24px; }
+  }
+
+  /* Red filled checkboxes */
+  input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    background: var(--white);
+    cursor: pointer;
+    flex-shrink: 0;
+    position: relative;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  input[type="checkbox"]:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 5px;
+    height: 9px;
+    border: 2px solid white;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg);
+  }
+
+  /* Red filled radio buttons */
+  input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 50%;
+    background: var(--white);
+    cursor: pointer;
+    flex-shrink: 0;
+    position: relative;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  input[type="radio"]:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  input[type="radio"]:checked::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: white;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">Proximity</div>
+  <div class="header-divider"></div>
+  <div class="header-subtitle">Landlord Onboarding</div>
+</div>
+
+<div class="progress-bar" id="progressBar">
+  <div class="progress-step active" id="p1"></div>
+  <div class="progress-step" id="p2"></div>
+  <div class="progress-step" id="p3"></div>
+</div>
+
+<div class="container">
+
+  <!-- STEP 1: Contact -->
+  <div class="step active" id="step1">
+    <div class="section-intro">
+      <div class="section-number">Step 1 of 3</div>
+      <h1 class="section-title">Your contact info</h1>
+      <p class="section-desc">This is how students will reach you.</p>
+    </div>
+
+    <div class="field">
+      <label>Your name</label>
+      <input id="f_name" type="text" placeholder="Your full name" autocomplete="name">
+    </div>
+
+    <div class="field-row two">
+      <div class="field">
+        <label>Phone number</label>
+        <input id="f_phone" type="tel" placeholder="(000) 000-0000" autocomplete="tel">
+      </div>
+      <div class="field">
+        <label>Email address</label>
+        <input id="f_email" type="email" placeholder="your@email.com" autocomplete="email">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Company or business name <span class="hint">optional</span></label>
+      <input id="f_company" type="text" placeholder="Company or LLC name" autocomplete="organization">
+    </div>
+
+    <div class="field">
+      <label>Best way for students to reach you</label>
+      <select id="f_preferContact">
+        <option value="">Select one</option>
+        <option>Phone call</option>
+        <option>Text message</option>
+        <option>Email</option>
+        <option>Any of the above</option>
+      </select>
+    </div>
+
+    <div class="nav">
+      <div class="nav-spacer"></div>
+      <button class="btn-next" id="continueBtn">Continue</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Properties -->
+  <div class="step" id="step2">
+    <div class="section-intro">
+      <div class="section-number">Step 2 of 3</div>
+      <h1 class="section-title">Your available units</h1>
+      <p class="section-desc">One card per building. If a building has multiple unit types, add them all under the same address.</p>
+    </div>
+
+    <div id="propertyList"></div>
+
+    <button class="add-property-btn" onclick="addProperty()">
+      <span>+</span> Add another property
+    </button>
+
+    <div class="nav">
+      <button class="btn-back" onclick="goTo(1)">Back</button>
+      <button class="btn-next" onclick="goTo(3)">Continue</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Photos, amenities, notes -->
+  <div class="step" id="step3">
+    <div class="section-intro">
+      <div class="section-number">Step 3 of 3</div>
+      <h1 class="section-title">Photos and final notes</h1>
+      <p class="section-desc">Almost done. Any photos you share should be yours to distribute outside of MLS or a brokerage platform.</p>
+    </div>
+
+    <div class="field">
+      <label>Photos</label>
+      <label class="photo-option">
+        <input type="radio" name="photoOption" value="email" checked>
+        <div class="photo-option-text">
+          <strong>I'll email them to you</strong>
+          <span>Send to b.flicker@wustl.edu after submitting</span>
+        </div>
+      </label>
+      <label class="photo-option">
+        <input type="radio" name="photoOption" value="link">
+        <div class="photo-option-text">
+          <strong>I have a link to existing photos</strong>
+          <span>Dropbox, Google Drive, or a listing URL</span>
+        </div>
+      </label>
+
+      <label class="photo-option">
+        <input type="radio" name="photoOption" value="none">
+        <div class="photo-option-text">
+          <strong>No photos right now</strong>
+          <span>We can list without them and add later</span>
+        </div>
+      </label>
+    </div>
+
+
+    <div class="field" id="photoLinkField" style="display:none;">
+      <label>Photo link</label>
+      <input type="url" placeholder="https://drive.google.com/...">
+    </div>
+
+    <div style="margin-top:14px;">
+      <label style="display:flex; align-items:flex-start; gap:11px; cursor:pointer; padding:14px 16px; border:1.5px solid var(--border); border-radius:9px; background:var(--white); transition:border-color 0.2s; line-height:1.5;">
+        <input type="checkbox" id="photoRights" style="width:16px; height:16px; margin-top:2px; accent-color:var(--accent); flex-shrink:0; cursor:pointer;">
+        <span style="font-size:13.5px; color:var(--text);">I confirm that any photos I share are owned by me or that I have the right to distribute them outside of MLS or brokerage platforms.</span>
+      </label>
+    </div>
+
+    <hr class="section-divider">
+
+    <div class="field">
+      <label>Property description <span class="hint">optional &mdash; we'll write one for you if you skip this</span></label>
+      <textarea placeholder="Anything you'd like students to know about the property or neighborhood. We'll handle the rest." style="min-height:110px;"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Anything else we should know <span class="hint">optional</span></label>
+      <textarea placeholder="e.g. No dogs, quiet building policy, prefer August move-in, credit check required..."></textarea>
+    </div>
+
+    <div class="nav">
+      <button class="btn-back" onclick="goTo(2)">Back</button>
+      <button class="btn-submit" onclick="submitForm()">Submit</button>
+    </div>
+  </div>
+
+  <!-- CONFIRMATION -->
+  <div class="step" id="stepDone">
+    <div class="confirmation">
+      <div class="confirmation-icon">✓</div>
+      <h2>You're all set.</h2>
+      <p>We'll have your listing live within 24 hours. If we have any questions we'll reach out directly. Thank you for being part of our early launch.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let propCount = 0;
+  const unitCounts = {};
+
+  document.addEventListener('DOMContentLoaded', function() {
+    addProperty(); // Start Step 2 with one property card ready
+
+    // Continue button logic attached via event listener (sandbox-safe)
+    var btn = document.getElementById('continueBtn');
+    if (btn) {
+      btn.addEventListener('click', function() {
+        var name  = document.getElementById('f_name').value.trim();
+        var phone = document.getElementById('f_phone').value.trim();
+        var email = document.getElementById('f_email').value.trim();
+        var pref  = document.getElementById('f_preferContact').value;
+
+        // Clear previous errors
+        ['f_name','f_phone','f_email','f_preferContact'].forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el) el.style.borderColor = '';
+        });
+        var existingErr = document.getElementById('step1_error');
+        if (existingErr) existingErr.remove();
+
+        var missing = [];
+        if (!name)  missing.push('f_name');
+        if (!phone) missing.push('f_phone');
+        if (!email) missing.push('f_email');
+        if (!pref)  missing.push('f_preferContact');
+
+        if (missing.length > 0) {
+          missing.forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) el.style.borderColor = '#E33A2F';
+          });
+          var err = document.createElement('p');
+          err.id = 'step1_error';
+          err.style.cssText = 'color:#E33A2F; font-size:13px; margin-top:8px; text-align:right;';
+          err.textContent = 'Please fill in the highlighted fields to continue.';
+          document.querySelector('#step1 .nav').appendChild(err);
+          return;
+        }
+        goTo(2);
+      });
+    }
+  });
+
+  function addProperty() {
+    propCount++;
+    const pid = propCount;
+    unitCounts[pid] = 0;
+
+    const container = document.getElementById('propertyList');
+    const card = document.createElement('div');
+    card.className = 'property-card';
+    card.id = `prop-${pid}`;
+
+    card.innerHTML = `
+      <div class="property-card-header">
+        <div class="property-card-label" id="prop-label-${pid}">Property ${pid}</div>
+        ${pid > 1 ? `<button class="remove-card" onclick="removeProperty(${pid})">×</button>` : ''}
+      </div>
+
+      <div class="field" style="margin-bottom:20px;">
+        <label>Street address</label>
+        <input type="text" placeholder="123 Main St, St. Louis MO 63130">
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <label style="display:block; font-size:13px; font-weight:600; color:var(--navy); margin-bottom:8px; letter-spacing:0.01em;">
+          Lease terms available <span style="font-size:12px; color:var(--muted); font-weight:400; margin-left:4px;">check all that apply</span>
+        </label>
+        <div class="check-grid three">
+          <label class="check-pill"><input type="checkbox"> Month-to-month</label>
+          <label class="check-pill"><input type="checkbox"> 6 months</label>
+          <label class="check-pill"><input type="checkbox"> 12 months</label>
+          <label class="check-pill"><input type="checkbox"> 2 years</label>
+          <label class="check-pill"><input type="checkbox"> Academic year</label>
+          <label class="check-pill"><input type="checkbox"> Flexible / negotiable</label>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <label style="display:block; font-size:13px; font-weight:600; color:var(--navy); margin-bottom:8px; letter-spacing:0.01em;">
+          Amenities <span style="font-size:12px; color:var(--muted); font-weight:400; margin-left:4px;">check all that apply</span>
+        </label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <label class="check-pill" style="font-size:13px;"><input type="checkbox"> Air conditioning</label>
+          <label class="check-pill" style="font-size:13px;"><input type="checkbox"> In-unit laundry</label>
+          <label class="check-pill" style="font-size:13px;"><input type="checkbox"> Laundry in building</label>
+          <label class="check-pill" style="font-size:13px;"><input type="checkbox"> Dishwasher</label>
+          <label class="check-pill" style="font-size:13px;"><input type="checkbox"> Off-street parking</label>
+          <label class="check-pill" style="font-size:13px;"><input type="checkbox"> Garage parking</label>
+          <label class="check-pill" style="font-size:13px;"><input type="checkbox"> Pets allowed</label>
+          <label class="check-pill" style="font-size:13px;"><input type="checkbox"> Furnished</label>
+          <label class="check-pill" style="font-size:13px;"><input type="checkbox"> Hardwood floors</label>
+          <label class="check-pill" style="font-size:13px;"><input type="checkbox"> Basement storage</label>
+          <label class="check-pill" style="font-size:13px;"><input type="checkbox"> Porch or outdoor space</label>
+          <label class="check-pill" style="font-size:13px;"><input type="checkbox"> Bike storage</label>
+        </div>
+      </div>
+
+      <div class="subsection-label">Unit types</div>
+      <div id="units-${pid}"></div>
+      <button class="add-unit-btn" onclick="addUnit(${pid})">+ Add unit type</button>
+    `;
+
+    container.appendChild(card);
+    addUnit(pid);
+    updatePropertyLabels();
+  }
+
+  function addUnit(pid) {
+    unitCounts[pid] = (unitCounts[pid] || 0) + 1;
+    const uid = unitCounts[pid];
+    const container = document.getElementById(`units-${pid}`);
+
+    const block = document.createElement('div');
+    block.className = 'unit-block';
+    block.id = `unit-${pid}-${uid}`;
+
+    block.innerHTML = `
+      <div class="unit-block-header">
+        <div class="unit-block-label" id="unit-label-${pid}-${uid}">Unit type ${uid}</div>
+        ${uid > 1 ? `<button class="remove-unit" onclick="removeUnit(${pid}, ${uid})">×</button>` : ''}
+      </div>
+      <div class="inline-grid-two">
+        <div class="inline-field">
+          <label>Bedrooms</label>
+          <select>
+            <option value="">Select</option>
+            <option>Studio</option>
+            <option>1 bed</option>
+            <option>2 bed</option>
+            <option>3 bed</option>
+            <option>4+ bed</option>
+          </select>
+        </div>
+        <div class="inline-field">
+          <label>Bathrooms</label>
+          <select>
+            <option value="">Select</option>
+            <option>1</option>
+            <option>1.5</option>
+            <option>2</option>
+            <option>2+</option>
+          </select>
+        </div>
+      </div>
+      <div class="inline-grid-two">
+        <div class="inline-field">
+          <label>Monthly rent <span style="font-size:11px; color:var(--muted); font-weight:400;">optional</span></label>
+          <input type="text" placeholder="$0,000">
+        </div>
+        <div class="inline-field">
+          <label>Availability</label>
+          <div style="display:flex; flex-direction:column; gap:7px; margin-top:2px;">
+            <label style="display:flex; align-items:center; gap:8px; font-size:13.5px; font-weight:400; color:var(--text); cursor:pointer;">
+              <input type="radio" name="avail-${pid}-${uid}" value="immediate" > Immediate
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-size:13.5px; font-weight:400; color:var(--text); cursor:pointer;">
+              <input type="radio" name="avail-${pid}-${uid}" value="date" onchange="toggleDatePicker(this, '${pid}-${uid}')"> Specific date
+            </label>
+            <input type="date" id="datepick-${pid}-${uid}" style="display:none; padding:8px 12px; border:1.5px solid var(--border); border-radius:7px; font-family:'DM Sans',sans-serif; font-size:13.5px; color:var(--text); margin-left:23px; width:calc(100% - 23px); outline:none; accent-color:var(--accent);">
+            <label style="display:flex; align-items:center; gap:8px; font-size:13.5px; font-weight:400; color:var(--text); cursor:pointer;">
+              <input type="radio" name="avail-${pid}-${uid}" value="tbd"> TBD
+            </label>
+          </div>
+        </div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="display:block; font-size:13px; font-weight:600; color:var(--navy); margin-bottom:8px;">What's included in rent <span style="font-size:11px; color:var(--muted); font-weight:400;">optional</span></label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:7px;">
+          <label class="check-pill" style="font-size:13px;"><input type="checkbox"> Heat</label>
+          <label class="check-pill" style="font-size:13px;"><input type="checkbox"> Water</label>
+          <label class="check-pill" style="font-size:13px;"><input type="checkbox"> Electric</label>
+          <label class="check-pill" style="font-size:13px;"><input type="checkbox"> Internet</label>
+          <label class="check-pill" style="font-size:13px;"><input type="checkbox"> Trash</label>
+          <label class="check-pill" style="font-size:13px;"><input type="checkbox"> Gas</label>
+        </div>
+        <input type="text" placeholder="Other (e.g. cable, lawn care...)" style="margin-top:7px; width:100%; padding:10px 13px; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:13.5px; color:var(--text); background:var(--white); outline:none; transition:border-color 0.2s;">
+      </div>
+
+    `;
+
+    container.appendChild(block);
+    updateUnitLabels(pid);
+  }
+
+  function removeUnit(pid, uid) {
+    const block = document.getElementById(`unit-${pid}-${uid}`);
+    if (block) block.remove();
+    updateUnitLabels(pid);
+  }
+
+  function removeProperty(pid) {
+    const card = document.getElementById(`prop-${pid}`);
+    if (card) card.remove();
+    updatePropertyLabels();
+  }
+
+  function updatePropertyLabels() {
+    const cards = document.querySelectorAll('.property-card');
+    cards.forEach((card, i) => {
+      const label = card.querySelector('[id^="prop-label-"]');
+      if (label) label.textContent = `Property ${i + 1}`;
+    });
+  }
+
+  function updateUnitLabels(pid) {
+    const blocks = document.querySelectorAll(`#units-${pid} .unit-block`);
+    blocks.forEach((block, i) => {
+      const label = block.querySelector('[id^="unit-label-"]');
+      if (label) label.textContent = `Unit type ${i + 1}`;
+    });
+  }
+
+  function goTo(step) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById(`step${step}`).classList.add('active');
+    updateProgress(step);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updateProgress(step) {
+    for (let i = 1; i <= 3; i++) {
+      const el = document.getElementById(`p${i}`);
+      el.classList.remove('active', 'done');
+      if (i === step) el.classList.add('active');
+      else if (i < step) el.classList.add('done');
+    }
+  }
+
+  function toggleDatePicker(radio, key) {
+    const picker = document.getElementById('datepick-' + key);
+    if (picker) picker.style.display = radio.checked ? 'block' : 'none';
+  }
+
+  function submitForm() {
+    const SCRIPT_URL = 'https://formspree.io/f/mkovzpbk';
+
+    // ---- Step 1: Contact info (all fields have IDs) ----
+    const contactName   = document.getElementById('f_name')?.value.trim() || '';
+    const contactEmail  = document.getElementById('f_email')?.value.trim() || '';
+    const contactPhone  = document.getElementById('f_phone')?.value.trim() || '';
+    const companyName   = document.getElementById('f_company')?.value.trim() || '';
+    const preferContact = document.getElementById('f_preferContact')?.value.trim() || '';
+
+    // ---- Step 2: Properties ----
+    const propertiesData = [];
+    document.querySelectorAll('.property-card').forEach((card) => {
+
+      // Address: first text input in the card
+      const addressInput = card.querySelector('input[type="text"]');
+      const address = addressInput ? addressInput.value.trim() : '';
+
+      // Lease terms: inside .check-grid elements (first grid in card)
+      const leaseTerms = [];
+      const leaseGrids = card.querySelectorAll('.check-grid');
+      if (leaseGrids[0]) {
+        leaseGrids[0].querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
+          leaseTerms.push(cb.closest('label').textContent.trim());
+        });
+      }
+
+      // Amenities: the div grid that comes after lease terms (uses inline style grid, not .check-grid class)
+      const amenities = [];
+      const amenityGrid = card.querySelector('div[style*="grid-template-columns: 1fr 1fr"]');
+      if (amenityGrid) {
+        amenityGrid.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
+          amenities.push(cb.closest('label').textContent.trim());
+        });
+      }
+
+      // Units
+      const units = [];
+      card.querySelectorAll('.unit-block').forEach((unit) => {
+        const selects = unit.querySelectorAll('select');
+        const beds  = selects[0] ? selects[0].value : '';
+        const baths = selects[1] ? selects[1].value : '';
+
+        const rentInput = unit.querySelector('input[type="text"]');
+        const rent = rentInput ? rentInput.value.trim() : '';
+
+        // Availability
+        const availRadio = unit.querySelector('input[type="radio"]:checked');
+        let avail = availRadio ? availRadio.value : '';
+        if (avail === 'date') {
+          const datePick = unit.querySelector('input[type="date"]');
+          avail = datePick && datePick.value ? datePick.value : 'date TBD';
+        }
+
+        // Utilities: checkboxes inside the utilities sub-section of the unit block
+        const utilities = [];
+        const utilGrid = unit.querySelector('div[style*="grid-template-columns: 1fr 1fr"]');
+        if (utilGrid) {
+          utilGrid.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
+            utilities.push(cb.closest('label').textContent.trim());
+          });
+        }
+        // Other utilities free-text
+        const utilOther = unit.querySelector('input[placeholder*="Other"]');
+        if (utilOther && utilOther.value.trim()) utilities.push(utilOther.value.trim());
+
+        units.push({ beds, baths, rent, availability: avail, utilities: utilities.join(', ') });
+      });
+
+      propertiesData.push({ address, leaseTerms: leaseTerms.join(', '), amenities: amenities.join(', '), units });
+    });
+
+    // ---- Step 3: Photos & notes ----
+    const photoOption = document.querySelector('input[name="photoOption"]:checked');
+    const photoChoice = photoOption ? photoOption.value : '';
+    const photoLinkInput = document.querySelector('#photoLinkField input');
+    const photoLink = photoLinkInput ? photoLinkInput.value.trim() : '';
+
+    const textareas = document.querySelectorAll('#step3 textarea');
+    const description = textareas[0] ? textareas[0].value.trim() : '';
+    const notes       = textareas[1] ? textareas[1].value.trim() : '';
+
+    // ---- Build payload ----
+    const payload = {
+      timestamp:     new Date().toISOString(),
+      contactName,
+      contactEmail,
+      contactPhone,
+      companyName,
+      preferContact,
+      photoChoice,
+      photoLink,
+      description,
+      notes,
+      propertyCount: propertiesData.length,
+    };
+
+    propertiesData.forEach((prop, pi) => {
+      const p = pi + 1;
+      payload[`p${p}_address`]    = prop.address;
+      payload[`p${p}_leaseTerms`] = prop.leaseTerms;
+      payload[`p${p}_amenities`]  = prop.amenities;
+      prop.units.forEach((unit, ui) => {
+        const u = ui + 1;
+        payload[`p${p}_u${u}_beds`]      = unit.beds;
+        payload[`p${p}_u${u}_baths`]     = unit.baths;
+        payload[`p${p}_u${u}_rent`]      = unit.rent;
+        payload[`p${p}_u${u}_avail`]     = unit.availability;
+        payload[`p${p}_u${u}_utilities`] = unit.utilities;
+      });
+    });
+
+    // ---- Show confirmation immediately ----
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('stepDone').classList.add('active');
+    document.getElementById('progressBar').style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // ---- POST to Formspree ----
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res) {
+      if (!res.ok) console.error('Formspree error:', res.status);
+    })
+    .catch(err => console.error('Proximity form submission error:', err));
+  }
+
+  document.querySelectorAll('input[name="photoOption"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+      var linkField = document.getElementById('photoLinkField');
+      if (linkField) linkField.style.display = this.value === 'link' ? 'block' : 'none';
+    });
+  });
+
+</script>
+</body>
+</html>
