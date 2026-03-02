@@ -822,6 +822,10 @@
         <div class="unit-block-label" id="unit-label-${pid}-${uid}">Unit type ${uid}</div>
         ${uid > 1 ? `<button class="remove-unit" onclick="removeUnit(${pid}, ${uid})">×</button>` : ''}
       </div>
+      <div class="inline-field" style="margin-bottom:16px;">
+        <label>Unit name <span style="font-size:11px; color:var(--muted); font-weight:400;">optional — e.g. 6040 1E, Apt 2W</span></label>
+        <input type="text" placeholder="e.g. 6040 1E">
+      </div>
       <div class="inline-grid-two">
         <div class="inline-field">
           <label>Bedrooms</label>
@@ -977,8 +981,12 @@
         const beds  = selects[0] ? selects[0].value : '';
         const baths = selects[1] ? selects[1].value : '';
 
-        const rentInput = unit.querySelector('input[type="text"]');
+        const rentInput = unit.querySelector('input[placeholder="$0,000"]');
         const rent = rentInput ? rentInput.value.trim() : '';
+
+        // Unit name
+        const unitNameInput = unit.querySelector('input[placeholder="e.g. 6040 1E"]');
+        const unitName = unitNameInput ? unitNameInput.value.trim() : '';
 
         // Availability
         const availRadio = unit.querySelector('input[type="radio"]:checked');
@@ -1000,7 +1008,7 @@
         const utilOther = unit.querySelector('input[placeholder*="Other"]');
         if (utilOther && utilOther.value.trim()) utilities.push(utilOther.value.trim());
 
-        units.push({ beds, baths, rent, availability: avail, utilities: utilities.join(', ') });
+        units.push({ unitName, beds, baths, rent, availability: avail, utilities: utilities.join(', ') });
       });
 
       propertiesData.push({ address, leaseTerms: leaseTerms.join(', '), amenities: amenities.join(', '), units });
@@ -1038,6 +1046,7 @@
       payload[`p${p}_amenities`]  = prop.amenities;
       prop.units.forEach((unit, ui) => {
         const u = ui + 1;
+        payload[`p${p}_u${u}_name`]      = unit.unitName;
         payload[`p${p}_u${u}_beds`]      = unit.beds;
         payload[`p${p}_u${u}_baths`]     = unit.baths;
         payload[`p${p}_u${u}_rent`]      = unit.rent;
@@ -1064,7 +1073,7 @@
     .catch(err => console.error('Proximity form submission error:', err));
   }
 
-  document.querySelectorAll('input[name="photoOption"]').forEach(function(radio) {
+      document.querySelectorAll('input[name="photoOption"]').forEach(function(radio) {
     radio.addEventListener('change', function() {
       var linkField = document.getElementById('photoLinkField');
       if (linkField) linkField.style.display = this.value === 'link' ? 'block' : 'none';
