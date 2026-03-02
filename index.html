@@ -670,11 +670,6 @@
     <hr class="section-divider">
 
     <div class="field">
-      <label>Property description <span class="hint">optional &mdash; we'll write one for you if you skip this</span></label>
-      <textarea placeholder="Anything you'd like students to know about the property or neighborhood. We'll handle the rest." style="min-height:110px;"></textarea>
-    </div>
-
-    <div class="field">
       <label>Anything else we should know <span class="hint">optional</span></label>
       <textarea placeholder="e.g. No dogs, quiet building policy, prefer August move-in, credit check required..."></textarea>
     </div>
@@ -798,6 +793,11 @@
         </div>
       </div>
 
+      <div style="margin-bottom:20px;">
+        <label style="display:block; font-size:13px; font-weight:600; color:var(--navy); margin-bottom:8px; letter-spacing:0.01em;">Property description <span style="font-size:11px; color:var(--muted); font-weight:400;">optional</span></label>
+        <textarea placeholder="Anything students should know about this building or neighborhood. We'll handle the rest." style="width:100%; padding:11px 14px; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:13.5px; color:var(--text); background:var(--white); outline:none; resize:vertical; min-height:80px; line-height:1.5; transition:border-color 0.2s;" class="prop-description"></textarea>
+      </div>
+
       <div class="subsection-label">Unit types</div>
       <div id="units-${pid}"></div>
       <button class="add-unit-btn" onclick="addUnit(${pid})">+ Add unit type</button>
@@ -882,6 +882,10 @@
         </div>
         <input type="text" placeholder="Other (e.g. cable, lawn care...)" style="margin-top:7px; width:100%; padding:10px 13px; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:13.5px; color:var(--text); background:var(--white); outline:none; transition:border-color 0.2s;">
       </div>
+      <div style="margin-top:12px;">
+        <label style="display:block; font-size:13px; font-weight:600; color:var(--navy); margin-bottom:8px;">Unit description <span style="font-size:11px; color:var(--muted); font-weight:400;">optional</span></label>
+        <textarea placeholder="Anything specific to this unit — layout, floor, view, recent updates, etc." style="width:100%; padding:11px 14px; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:13.5px; color:var(--text); background:var(--white); outline:none; resize:vertical; min-height:70px; line-height:1.5; transition:border-color 0.2s;" class="unit-description"></textarea>
+      </div>
 
     `;
 
@@ -956,6 +960,10 @@
       const addressInput = card.querySelector('input[type="text"]');
       const address = addressInput ? addressInput.value.trim() : '';
 
+      // Property description
+      const propDescEl = card.querySelector('textarea.prop-description');
+      const propDescription = propDescEl ? propDescEl.value.trim() : '';
+
       // Lease terms: inside .check-grid elements (first grid in card)
       const leaseTerms = [];
       const leaseGrids = card.querySelectorAll('.check-grid');
@@ -1008,10 +1016,14 @@
         const utilOther = unit.querySelector('input[placeholder*="Other"]');
         if (utilOther && utilOther.value.trim()) utilities.push(utilOther.value.trim());
 
-        units.push({ unitName, beds, baths, rent, availability: avail, utilities: utilities.join(', ') });
+        // Unit description
+        const unitDescEl = unit.querySelector('textarea.unit-description');
+        const unitDescription = unitDescEl ? unitDescEl.value.trim() : '';
+
+        units.push({ unitName, beds, baths, rent, availability: avail, utilities: utilities.join(', '), unitDescription });
       });
 
-      propertiesData.push({ address, leaseTerms: leaseTerms.join(', '), amenities: amenities.join(', '), units });
+      propertiesData.push({ address, leaseTerms: leaseTerms.join(', '), amenities: amenities.join(', '), propDescription, units });
     });
 
     // ---- Step 3: Photos & notes ----
@@ -1021,8 +1033,7 @@
     const photoLink = photoLinkInput ? photoLinkInput.value.trim() : '';
 
     const textareas = document.querySelectorAll('#step3 textarea');
-    const description = textareas[0] ? textareas[0].value.trim() : '';
-    const notes       = textareas[1] ? textareas[1].value.trim() : '';
+    const notes = textareas[0] ? textareas[0].value.trim() : '';
 
     // ---- Build payload ----
     const payload = {
@@ -1034,24 +1045,25 @@
       preferContact,
       photoChoice,
       photoLink,
-      description,
       notes,
       propertyCount: propertiesData.length,
     };
 
     propertiesData.forEach((prop, pi) => {
       const p = pi + 1;
-      payload[`p${p}_address`]    = prop.address;
-      payload[`p${p}_leaseTerms`] = prop.leaseTerms;
-      payload[`p${p}_amenities`]  = prop.amenities;
+      payload[`p${p}_address`]     = prop.address;
+      payload[`p${p}_leaseTerms`]  = prop.leaseTerms;
+      payload[`p${p}_amenities`]   = prop.amenities;
+      payload[`p${p}_description`] = prop.propDescription;
       prop.units.forEach((unit, ui) => {
         const u = ui + 1;
-        payload[`p${p}_u${u}_name`]      = unit.unitName;
-        payload[`p${p}_u${u}_beds`]      = unit.beds;
-        payload[`p${p}_u${u}_baths`]     = unit.baths;
-        payload[`p${p}_u${u}_rent`]      = unit.rent;
-        payload[`p${p}_u${u}_avail`]     = unit.availability;
-        payload[`p${p}_u${u}_utilities`] = unit.utilities;
+        payload[`p${p}_u${u}_name`]        = unit.unitName;
+        payload[`p${p}_u${u}_beds`]        = unit.beds;
+        payload[`p${p}_u${u}_baths`]       = unit.baths;
+        payload[`p${p}_u${u}_rent`]        = unit.rent;
+        payload[`p${p}_u${u}_avail`]       = unit.availability;
+        payload[`p${p}_u${u}_utilities`]   = unit.utilities;
+        payload[`p${p}_u${u}_description`] = unit.unitDescription;
       });
     });
 
@@ -1073,7 +1085,7 @@
     .catch(err => console.error('Proximity form submission error:', err));
   }
 
-      document.querySelectorAll('input[name="photoOption"]').forEach(function(radio) {
+        document.querySelectorAll('input[name="photoOption"]').forEach(function(radio) {
     radio.addEventListener('change', function() {
       var linkField = document.getElementById('photoLinkField');
       if (linkField) linkField.style.display = this.value === 'link' ? 'block' : 'none';
