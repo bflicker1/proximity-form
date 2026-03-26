@@ -825,11 +825,8 @@
       </div>
 
       <div style="margin-bottom:20px;">
-        <label style="display:block; font-size:13px; font-weight:600; color:var(--navy); margin-bottom:10px; letter-spacing:0.01em;">Utilities included</label>
-        <div class="yn-group">
-          <label class="yn-pill"><input type="radio" name="utilities-${pid}" value="Yes"> Yes</label>
-          <label class="yn-pill"><input type="radio" name="utilities-${pid}" value="No"> No</label>
-        </div>
+        <label style="display:block; font-size:13px; font-weight:600; color:var(--navy); margin-bottom:7px; letter-spacing:0.01em;">Utilities included <span style="font-size:12px; color:var(--muted); font-weight:400; margin-left:4px;">if any</span></label>
+        <input type="text" class="prop-utilitiesIncluded" placeholder="e.g. Water, trash, gas" style="width:100%; padding:13px 16px; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:15px; color:var(--text); background:var(--white); outline:none; -webkit-appearance:none; transition:border-color 0.2s, box-shadow 0.2s;">
       </div>
 
       <div style="margin-bottom:20px;">
@@ -1006,8 +1003,7 @@
       const furnishedRadio = card.querySelector('input[name^="furnished-"]:checked');
       const furnished = furnishedRadio ? furnishedRadio.value : '';
 
-      const utilitiesRadio = card.querySelector('input[name^="utilities-"]:checked');
-      const utilitiesIncluded = utilitiesRadio ? utilitiesRadio.value : '';
+      const utilitiesIncluded = (card.querySelector('.prop-utilitiesIncluded')?.value || '').trim();
 
       const subleaseRadio = card.querySelector('input[name^="sublease-"]:checked');
       const subleaseFriendly = subleaseRadio ? subleaseRadio.value : '';
